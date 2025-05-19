@@ -4,3 +4,5 @@ Este repositório contém materiais, exercícios e projetos da disciplina **Banc
 
 ##  Tecnologias Utilizadas
 - **SQL** → Consultas e manipulação de dados.
+- ![SQL](https://img.shields.io/badge/SQL-Database-blue)
+
