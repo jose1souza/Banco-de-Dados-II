@@ -25,5 +25,12 @@ CREATE
     SET NEW . preco_desconto = (NEW.preco_item * 0.9);
 -- Calcula automaticamente o preço com desconto ao inserir um novo item no estoque
 SHOW TRIGGERS;
-
-
+-- Inserindo
+INSERT INTO Estoque (nome_item_estoque,preco_item)
+VALUES ("Monitor", 700.00),
+	   ("Mouse", 50.00),
+	   ("Teclado", 120.00),
+       ("CPU", 1200.00),
+       ("Controles", 120.00);
+-- Visualizando
+SELECT * FROM Estoque;
