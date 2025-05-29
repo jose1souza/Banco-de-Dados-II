@@ -24,7 +24,9 @@ UPDATE conta SET senha = 'no' WHERE tipo = "Poupança";
 CREATE TRIGGER tr_cria_conta
 AFTER INSERT ON cliente
 FOR EACH ROW
-	INSERT INTO conta(tipo,saldo,senha) VALUES("Poupança",0.01,"ABC");
+BEGIN
+	INSERT INTO conta (tipo,saldo,senha) VALUES ("Poupança",0.01,"ABC");
+    INSERT INTO contavinculada (CLIENTE_idCLIENTE,CONTA_idCONTA,dataAbertura) VALUES (NEW.idCLIENTE,LAST_INSERT_ID(),NOW());
 
 -- DROP TRIGGER tr_cria_conta;
 INSERT INTO cliente(nome,cpf,rg,dataNascimento,telefone)
