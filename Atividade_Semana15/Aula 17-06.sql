@@ -1,5 +1,8 @@
 use burger;
 SELECT * FROM nascimentoclientes;
+start transaction;
+rollback;
+select * from produto;
 --------------------------------------------------------------- 
 /*1  Criar uma Stored Procedure que, passando o código do cliente e o e-mail, atualize o e-mail de um cliente na tabela cliente.*/
 DELIMITER //
@@ -11,6 +14,7 @@ BEGIN
 	WHERE codCliente = p_codigo;
 END //
 DELIMITER ;
+CALL sp_atualiza_email_por_codigo(1,"testeando@gmail.com");
 /*2 Criar uma Stored Procedure que, passando um nome novo, insira uma nova marca na tabela marca.*/
 DELIMITER //
 CREATE PROCEDURE sp_insere_marca(
@@ -19,15 +23,17 @@ CREATE PROCEDURE sp_insere_marca(
 		INSERT INTO marca (nome) VALUES (m_nome);
 END //
 DELIMITER ;
+CALL sp_insere_marca("teste");
 /*3 Criar uma Stored Procedure que, passando o código e um nome novo, atualize o nome da marca na tabela marca.*/
-DELIMITER ;
+DELIMITER //
 CREATE PROCEDURE sp_atualiza_marca(
 	IN m_codMarca int(11),
     IN m_nome VARCHAR(200))
 		BEGIN
-			UPDATE marca SET nome = m_nome WHERE codMarca = m_codMarca
+			UPDATE marca SET nome = m_nome WHERE codMarca = m_codMarca;
 END //
 DELIMITER ;
+CALL sp_atualiza_marca(1,"teste");
 /*4. Criar uma Stored Procedure que, passando o código de uma marca, apague uma marca na tabela marca.*/
 DELIMITER //
 CREATE PROCEDURE sp_apaga_marca(
@@ -37,6 +43,7 @@ CREATE PROCEDURE sp_apaga_marca(
 END //
 DELIMITER ;
 DESCRIBE categoria;
+CALL sp_apaga_marca(1);
 /*5.Criar uma Stored Procedure que, passando um nome novo, insira uma nova categoria na tabela categoria.*/
 DELIMITER //
 CREATE PROCEDURE sp_insere_categoria(
@@ -46,6 +53,7 @@ CREATE PROCEDURE sp_insere_categoria(
 	END //
 DELIMITER ;
 DESCRIBE cliente;
+CALL sp_insere_categoria("Antigo");
 /*6 Criar uma Stored Procedure que, passando o nome do cliente e a data de nascimento, insira um novo cliente na tabela cliente.*/
 DELIMITER //
 CREATE PROCEDURE sp_insere_novo_cliente(
@@ -58,6 +66,7 @@ CREATE PROCEDURE sp_insere_novo_cliente(
 END //
 DELIMITER ;
 DESCRIBE produto;
+CALL sp_insere_novo_cliente("José","1980-09-21");
 /* 7.Criar uma Stored Procedure que, passando o código e uma nova margem de lucro,
  atualize a margem de lucro de um produto na tabela produto.
  Caso o código não corresponda a um produto, retornar a mensagem de “Produto não encontrado”.*/
@@ -66,15 +75,16 @@ DESCRIBE produto;
 	IN p_codProduto INT(11),
 	IN p_margemLucro DECIMAL(5,2))
 	BEGIN 
-	IF(p_codProduto = codProduto) THEN
-		UPDATE produto SET margemLucro = p_margemLucro WHERE codProduto = p_codProduto;
-	END IF;
-    IF(p_codProduto != codProduto) THEN
+	IF EXISTS(SELECT 1 FROM produto WHERE codProduto = p_codProduto) THEN
+		UPDATE produto AS p SET margemLucro = p_margemLucro WHERE p.codProduto = p_codProduto;
+	ELSE
 		SELECT "Produto não encontrado";
 	END IF;
 END //
 DELIMITER ;
 DESCRIBE produto;
+CALL sp_atualiza_margem_lucro(1,10.4);
+DROP PROCEDURE sp_atualiza_margem_lucro;
 /*8.Criar uma Stored Procedure que, passando os campos obrigatórios, insira um novo produto na tabela produto.*/
 DELIMITER //
 CREATE PROCEDURE sp_insere_produto(
@@ -85,10 +95,11 @@ CREATE PROCEDURE sp_insere_produto(
     IN p_MARCA_codMarca INT(11))
     BEGIN
 		INSERT INTO produto (nome,precoCusto,precoVenda,margemLucro,dataValidade,quantidadeEstoque,quantidadeMinima,CATEGORIA_codCategoria,MARCA_codMarca)
-        VALUES (p_nome,p_precoCusto,p_precoVenda,NULL,NULL,NULL,p_CATEGORIA_codCategoria,p_MARCA_codMarca);
+        VALUES (p_nome,p_precoCusto,p_precoVenda,NULL,NULL,NULL,NULL,p_CATEGORIA_codCategoria,p_MARCA_codMarca);
 END //
 DELIMITER ;
 DESCRIBE cliente;
+CALL sp_insere_produto("Castanha",10.0,10.0,1,6);
 /* 9.Criar uma Stored Procedure que, passando parte do nome do cliente, 
 seja possível consultar os clientes que possuem esta informação em qualquer parte do seu nome. */
 DELIMITER //
@@ -98,3 +109,4 @@ CREATE PROCEDURE sp_procura_cliente(
     SELECT * FROM cliente WHERE nome LIKE concat("%",c_nome,"%");
 END //
 DELIMITER ;
+CALL sp_procura_cliente("J");
